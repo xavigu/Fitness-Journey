@@ -5,13 +5,17 @@ import { Store } from 'src/store';
 
 import { AppComponent } from './app.component';
 import { AuthModule } from './auth/auth.module';
+import { AppHeaderComponent } from './header/app-header.component';
+import { AppNavComponent } from './nav/app-nav.component';
 
 // routes
 export const ROUTES: Routes = [];
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    AppHeaderComponent,
+    AppNavComponent
   ],
   imports: [
     BrowserModule,
