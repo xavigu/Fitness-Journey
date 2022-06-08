@@ -35,6 +35,11 @@ export class AuthService {
     private af: AngularFireAuth
   ){}
 
+  // get current user logged
+  get user(){
+    return this.af.currentUser;
+  }
+
   // to access to authState property in other components
   get authState(){
     return this.af.authState;

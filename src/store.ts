@@ -4,6 +4,7 @@ import { User } from './app/auth/shared/services/auth/auth.service';
 
 export interface State {
   user: User,
+  meals: any[],
   [key: string]: any
 }
 
@@ -12,7 +13,8 @@ const state: State = {
     email: '',
     uid: '',
     authenticated: false
-  }
+  },
+  meals: []
 };
 
 export class Store {
