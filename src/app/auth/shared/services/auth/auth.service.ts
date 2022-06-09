@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
-import { tap } from 'rxjs';
+import { map, pipe, tap } from 'rxjs';
 import { Store } from 'src/store';
 
 export interface User {
@@ -12,11 +12,12 @@ export interface User {
 @Injectable()
 export class AuthService {
 
-  auth$ = this.af.authState.pipe(tap(
+  auth$ = this.afAuth.authState.pipe(tap(
     next => {
       // if the user is not logged
       if(!next) {
         this.store.set('user', null);
+        localStorage.setItem('userId', '');
         return;
       }
       
@@ -27,33 +28,35 @@ export class AuthService {
         authenticated: true
       }
       this.store.set('user', user);
+      localStorage.setItem('userId', user.uid);
     }
   ))
 
   constructor(
     private store: Store,
-    private af: AngularFireAuth
+    private afAuth: AngularFireAuth
   ){}
 
-  // get current user logged
+
+  // // get current user logged
   get user(){
-    return this.af.currentUser;
+    return this.afAuth.currentUser;
   }
 
   // to access to authState property in other components
   get authState(){
-    return this.af.authState;
+    return this.afAuth.authState;
   }
 
   createUser(email: string, password: string){
-    return this.af.createUserWithEmailAndPassword(email, password);
+    return this.afAuth.createUserWithEmailAndPassword(email, password);
   }
 
   loginUser(email: string, password: string){
-    return this.af.signInWithEmailAndPassword(email, password);
+    return this.afAuth.signInWithEmailAndPassword(email, password);
   }
 
   logoutUser(){
-    return this.af.signOut();
+    return this.afAuth.signOut();
   }
 }

@@ -14,22 +14,34 @@ export interface Meal {
 
 @Injectable()
 export class MealsService {
-
+  
+  userId: any = localStorage.getItem('userId')!;
+  
   // get meals from an user and set in the store
-  meals$: Observable<any> = this.db.list(`meals/${this.uid}`).valueChanges().pipe(tap(next => this.store.set('meals', next)));
-
+  meals$: Observable<any> = this.db.list(`meals/${this.userId}`).valueChanges().pipe(tap(next => this.store.set('meals', next)));
+  
   constructor(
     private store: Store,
     private db: AngularFireDatabase,
     private authService: AuthService
-  ){}
+    ){}
 
-  get uid(){
-    let uid!: any;
-    this.authService.user.then(user => {
-      uid = user?.uid;
-    })
-    return uid;
+  // get uid(){
+  //   return this.authService.userId;
+  // }
+
+  // getUserId(){
+  //   let uid!: any;
+  //   this.authService.user.then(user => {
+  //     console.log('user:', user)
+  //     uid = user?.uid;
+  //   })
+  //   console.log('uid:', uid)
+  //   return uid;
+  // }
+
+  addMeal(meal: Meal){
+    return this.db.list(`meals/${this.userId}`).push(meal);
   }
 
 }
