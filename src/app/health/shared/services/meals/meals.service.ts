@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { AngularFireDatabase } from '@angular/fire/compat/database';
-import { Observable, tap } from 'rxjs';
+import { AngularFireDatabase, AngularFireList } from '@angular/fire/compat/database';
+import { map, Observable } from 'rxjs';
 import { AuthService } from 'src/app/auth/shared/services/auth/auth.service';
 import { Store } from 'src/store';
 
@@ -17,14 +17,28 @@ export class MealsService {
   
   userId: any = localStorage.getItem('userId')!;
   
-  // get meals from an user and set in the store
-  meals$: Observable<any> = this.db.list(`meals/${this.userId}`).valueChanges().pipe(tap(next => this.store.set('meals', next)));
+  mealsRef$!: AngularFireList<any>;
+  meals$: Observable<any[]>;
   
   constructor(
     private store: Store,
     private db: AngularFireDatabase,
     private authService: AuthService
-    ){}
+    ){
+      // get meals from an specific user
+      this.mealsRef$ = this.db.list(`meals/${this.userId}`);
+      // create an observable getting the key of each meal and introduce in the meal data
+      this.meals$ = this.mealsRef$.snapshotChanges().pipe(
+        map((changes: any) => 
+          changes.map((c: any) => ({ key: c.payload.key, ...c.payload.val() }))
+        )
+      );
+      // store the meals with the key into the global store
+      this.meals$.subscribe(meals => {
+        console.log('meals updated: ', meals)
+        this.store.set('meals', meals)
+      });
+    }
 
   // get uid(){
   //   return this.authService.userId;
@@ -44,4 +58,8 @@ export class MealsService {
     return this.db.list(`meals/${this.userId}`).push(meal);
   }
 
+  removeMeal(key: string){
+    console.log('key: ', key);
+    return this.db.list(`meals/${this.userId}`).remove(key);
+  }
 }
