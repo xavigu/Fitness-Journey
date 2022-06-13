@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { AngularFireDatabase, AngularFireList } from '@angular/fire/compat/database';
-import { map, Observable } from 'rxjs';
+import { filter, map, Observable, of } from 'rxjs';
 import { AuthService } from 'src/app/auth/shared/services/auth/auth.service';
 import { Store } from 'src/store';
 
@@ -8,7 +8,7 @@ export interface Meal {
   name: string,
   ingredients: string[],
   timestamp: number,
-  $key: string,
+  key: string,
   $exists: () => boolean
 }
 
@@ -53,6 +53,16 @@ export class MealsService {
   //   console.log('uid:', uid)
   //   return uid;
   // }
+
+  getMeal(key: string){
+    console.log('getMeal param id', key)
+    if (!key) return of({});
+    return this.store.select('meals')
+      .pipe(
+        filter(Boolean),
+        map((meals: any) => meals.find((meal: any) => meal.key === key))
+      );
+  }
 
   addMeal(meal: Meal){
     return this.db.list(`meals/${this.userId}`).push(meal);
