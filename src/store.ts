@@ -1,10 +1,12 @@
 
 import { BehaviorSubject, distinctUntilChanged, Observable, pluck } from 'rxjs';
 import { User } from './app/auth/shared/services/auth/auth.service';
+import { Workout } from './app/health/shared/services/workouts/workouts.service';
 
 export interface State {
   user: User,
   meals: any[],
+  workouts: Workout[],
   [key: string]: any
 }
 
@@ -14,7 +16,8 @@ const state: State = {
     uid: '',
     authenticated: false
   },
-  meals: []
+  meals: [],
+  workouts: []
 };
 
 export class Store {
