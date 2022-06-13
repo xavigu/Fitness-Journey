@@ -19,11 +19,20 @@ import { Meal, MealsService } from '../../shared/services/meals/meals.service';
           </ng-template>  
         </h1>  
       </div>
-      <div>
+      <div *ngIf="meal$ | async as meal; else fetching">
         <meal-form
-          (mealCreated)="addMeal($event)">
+          [meal]="meal"
+          (mealCreated)="addMeal($event)"
+          (mealUpdated)="updateMeal($event)"
+          (mealRemoved)="removeMeal($event)">
         </meal-form>
       </div>  
+      <ng-template #fetching>
+        <div class="message">
+          <img src="/assets/loading.svg">
+          Fetching meal...
+        </div>
+      </ng-template>
     </div>
   `
 })
@@ -47,6 +56,18 @@ export class MealComponent implements OnInit, OnDestroy {
 
   async addMeal(event: Meal){
     await this.mealService.addMeal(event)
+    this.backToMeals();
+  }
+
+  async updateMeal(event: Meal){
+    const key = this.route.snapshot.params['id'];
+    await this.mealService.updateMeal(key, event);
+    this.backToMeals();
+  }
+
+  async removeMeal(event: Meal){
+    const key = this.route.snapshot.params['id'];
+    await this.mealService.removeMeal(key);
     this.backToMeals();
   }
 
