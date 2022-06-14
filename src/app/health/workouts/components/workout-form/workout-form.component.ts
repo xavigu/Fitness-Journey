@@ -14,7 +14,7 @@ import { Workout } from 'src/app/health/shared/services/workouts/workouts.servic
             <h3>Workout name</h3>
             <input
               type="text"
-              placeholder="e.g. Bench Press"
+              [placeholder]="placeholder"
               formControlName="name">
             <div class="error" *ngIf="required">
               Workout name is required
@@ -26,6 +26,44 @@ import { Workout } from 'src/app/health/shared/services/workouts/workouts.servic
               formControlName="type">
             </workout-type>
           </label>
+        </div>
+
+        <div class="workout-form__details">
+
+          <div *ngIf="form.get('type')?.value === 'strength'">
+            <div 
+              class ="workout-form__fields"
+              formGroupName="strength">
+              <label>
+                <h3>Reps</h3>
+                <input type="number" formControlName="reps">
+              </label>
+              <label>
+                <h3>Sets</h3>
+                <input type="number" formControlName="sets">
+              </label>
+              <label>
+                <h3>Weight <span>(kg)</span></h3>
+                <input type="number" formControlName="weight" step="5">
+              </label>
+            </div>
+          </div>
+
+          <div *ngIf="form.get('type')?.value === 'endurance'">
+            <div
+             class="workout-form__fields"
+             formGroupName="endurance">
+              <label>
+                <h3>Distance <span>(km)</span></h3>
+                <input type="number" formControlName="distance">
+              </label>
+              <label>
+                <h3>Duration <span>(minutes)</span></h3>
+                <input type="number" formControlName="duration">
+              </label>
+            </div>
+          </div>
+
         </div>
 
         <div class="workout-form__submit">
@@ -88,7 +126,16 @@ export class WorkoutFormComponent implements OnInit, OnChanges {
 
   form = this.fb.group({
     name: ['', Validators.required],
-    type: 'strength'
+    type: 'strength',
+    strength: this.fb.group({
+      reps: 0,
+      sets: 0,
+      weight: 0
+    }),
+    endurance: this.fb.group({
+      distance: 0,
+      duration: 0
+    })
   });
 
   constructor(
@@ -98,32 +145,18 @@ export class WorkoutFormComponent implements OnInit, OnChanges {
   ngOnInit(): void { }
 
   ngOnChanges(changes: SimpleChanges): void {
-    // if (this.workout && this.workout.name){
-    //   //exists workout
-    //   this.exists = true
-    //   this.emptyIngredients();
-
-    //   const value = this.workout;
-    //   this.form.patchValue(value);
-
-    //   // update de ingredients form array
-    //   this.updateIngredients(value);
-    // }
+    if (this.workout && this.workout.name){
+      //exists workout
+      this.exists = true;
+      const value = this.workout;
+      this.form.patchValue(value);
+    }
   }
 
-  // emptyIngredients(){
-  //   while (this.ingredients.controls.length){
-  //     this.ingredients.removeAt(0);
-  //   }
-  // }
 
-  // updateIngredients(value: any){
-  //   if (value.ingredients){
-  //     for (const ingredient of value.ingredients) {
-  //       this.ingredients.push(new FormControl(ingredient));
-  //     }
-  //   }
-  // }
+  get placeholder() {
+    return `e.g. ${this.form.get('type')?.value === 'strength' ? 'Bench Press' : 'Treadmill'}`
+  }
 
   get required(){
     return(
@@ -137,20 +170,6 @@ export class WorkoutFormComponent implements OnInit, OnChanges {
       this.form.get('name')?.hasError('required')
     );
   }
-
-  // get ingredients(){
-  //   return this.form.get('ingredients') as FormArray;
-  // }
-
-  // addIngredient(){
-  //   //access to get ingredients()
-  //   this.ingredients.push(new FormControl(''));
-  // }
-
-  // removeIngredient(index: number){
-  //   //access to get ingredients()
-  //   this.ingredients.removeAt(index);
-  // }
   
   createWorkout(){
     if (this.form.valid) {
@@ -167,7 +186,6 @@ export class WorkoutFormComponent implements OnInit, OnChanges {
   removeWorkout(){
     this.workoutRemoved.emit(this.form.value);
   }
-
 
   toggle(){
     this.toggled = !this.toggled;
