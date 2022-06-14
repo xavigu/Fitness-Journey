@@ -113,6 +113,7 @@
     background: #fff;
     color: #545e6f;
     flex-grow: 1;
+    max-width: -webkit-fill-available;
     border: 1px solid #d1deeb;
     border-radius: 3px;
     transition: all 0.2s ease-in-out;
