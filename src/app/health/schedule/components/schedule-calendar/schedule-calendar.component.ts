@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 
 @Component({
   selector: 'schedule-calendar',
@@ -9,12 +9,19 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
         [selected]="selectedDay"
         (move)="onChange($event)">
       </schedule-controls>
+
+      <schedule-days
+        [selected]="selectedDayIndex"
+        (select)="selectDay($event)">
+      </schedule-days>
     </div>
   `
 })
-export class ScheduleCalendarComponent implements OnInit {
+export class ScheduleCalendarComponent implements OnInit, OnChanges {
 
+  selectedDayIndex!: number;
   selectedDay!: Date;
+  selectedWeek!: Date;
 
   @Input()
   set date(date: Date | null){
@@ -29,6 +36,11 @@ export class ScheduleCalendarComponent implements OnInit {
 
   ngOnInit(): void { }
 
+  ngOnChanges(): void {
+    this.selectedDayIndex = this.getToday(this.selectedDay);
+    this.selectedWeek = this.getStartOfWeek(new Date(this.selectedDay));
+  }
+
   // get first day of the week and emit to parent
   onChange(weekOffset: number){
     const startOfWeek = this.getStartOfWeek(new Date());
@@ -37,6 +49,20 @@ export class ScheduleCalendarComponent implements OnInit {
     );
     startDate.setDate(startDate.getDate() + (weekOffset * 7));
     this.change.emit(startDate);
+  }
+
+  selectDay(index: number){
+    const selectedDay = new Date(this.selectedWeek);
+    selectedDay.setDate(selectedDay.getDate() + index);
+    this.change.emit(selectedDay);
+  }
+
+  private getToday(date: Date){
+    let today = date.getDay() - 1;
+    if (today < 0) {
+      today = 6;
+    }
+    return today;
   }
 
   private getStartOfWeek(date: Date){
