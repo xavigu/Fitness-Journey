@@ -5,6 +5,7 @@ import { Workout } from './app/health/shared/services/workouts/workouts.service'
 
 export interface State {
   user: User,
+  date: Date,
   meals: any[],
   workouts: Workout[],
   [key: string]: any
@@ -16,6 +17,7 @@ const state: State = {
     uid: '',
     authenticated: false
   },
+  date: new Date(),
   meals: [],
   workouts: []
 };
