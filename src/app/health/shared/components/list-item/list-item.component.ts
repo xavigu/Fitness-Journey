@@ -9,10 +9,13 @@ import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output
       <a [routerLink]="getRoute(item)">
         <p class="list-item__name">{{ item.name }}</p>
         <p class="list-item__ingredients">
-          <span>
-            {{ item.ingredients }}
+          <span *ngIf="item.ingredients; else detailsWorkout">
+            {{ item.ingredients | join }}
           </span>  
         </p>
+        <ng-template #detailsWorkout>
+          <span>{{ item | workout }}</span>
+        </ng-template>
       </a>
 
       <div 
@@ -63,6 +66,8 @@ export class ListItemComponent implements OnInit {
   }
 
   getRoute(item: any){
-    return [`../meals`, item.key];
+    return [
+      `../${ item.ingredients ? 'meals' : 'workouts' }`, 
+      item.key];
   }
 }
