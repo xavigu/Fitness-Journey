@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { ScheduleItem, ScheduleList } from 'src/app/health/shared/services/schedule/schedule.service';
 
 @Component({
   selector: 'schedule-calendar',
@@ -14,6 +15,12 @@ import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange
         [selected]="selectedDayIndex"
         (select)="selectDay($event)">
       </schedule-days>
+
+      <schedule-section
+        *ngFor="let section of sections"
+        [name]="section.name"
+        [section]="getSection(section.key)">
+      </schedule-section>
     </div>
   `
 })
@@ -23,12 +30,21 @@ export class ScheduleCalendarComponent implements OnInit, OnChanges {
   selectedDay!: Date;
   selectedWeek!: Date;
 
+  sections = [
+    {key: 'morning', name:'Morning'},
+    {key: 'lunch', name:'Lunch'},
+    {key: 'evening', name:'Evening'},
+    {key: 'snacks', name:'Snacks and Drinks'},
+  ]
+
   @Input()
   set date(date: Date | null){
     if (date) {
       this.selectedDay = new Date(date.getTime());
     }
   }
+
+  @Input() items!: ScheduleList | null;
 
   @Output() change = new EventEmitter<Date>();
 
@@ -39,6 +55,12 @@ export class ScheduleCalendarComponent implements OnInit, OnChanges {
   ngOnChanges(): void {
     this.selectedDayIndex = this.getToday(this.selectedDay);
     this.selectedWeek = this.getStartOfWeek(new Date(this.selectedDay));
+  }
+
+  // return all the specific section
+  getSection(name: string): ScheduleItem {
+    // get item based in the key (name)
+    return this.items && this.items[name] || {};
   }
 
   // get first day of the week and emit to parent
