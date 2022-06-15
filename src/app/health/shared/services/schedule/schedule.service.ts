@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { AngularFireDatabase } from '@angular/fire/compat/database';
-import { BehaviorSubject, map, Observable, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, map, Observable, Subject, switchMap, tap } from 'rxjs';
 import { Store } from 'src/store';
 import { Meal } from '../meals/meals.service';
 import { Workout } from '../workouts/workouts.service';
@@ -27,6 +27,9 @@ export class ScheduleService {
 
   //behaviour subject is initialized with a value
   private date$ = new BehaviorSubject(new Date());
+  private section$ = new Subject();
+
+  selected$ = this.section$.pipe(tap((next: any) => this.store.set('selected', next)))
 
   // TODO see if works
   // schedule is notified always the date subject emit and store the date
@@ -65,6 +68,10 @@ export class ScheduleService {
 
   updateDate(date: Date){
     this.date$.next(date);
+  }
+
+  selectSection(event: any){
+    this.section$.next(event);
   }
 
   // TODO see if works

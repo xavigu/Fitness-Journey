@@ -10,6 +10,7 @@ export interface State {
   meals: any[],
   workouts: Workout[],
   schedule: ScheduleItem[],
+  selected: any,
   [key: string]: any
 }
 
@@ -22,7 +23,8 @@ const state: State = {
   date: new Date(),
   meals: [],
   workouts: [],
-  schedule: []
+  schedule: [],
+  selected: {}
 };
 
 export class Store {

@@ -19,7 +19,8 @@ import { ScheduleItem, ScheduleList } from 'src/app/health/shared/services/sched
       <schedule-section
         *ngFor="let section of sections"
         [name]="section.name"
-        [section]="getSection(section.key)">
+        [section]="getSection(section.key)"
+        (select)="selectSection($event, section.key)">
       </schedule-section>
     </div>
   `
@@ -48,6 +49,8 @@ export class ScheduleCalendarComponent implements OnInit, OnChanges {
 
   @Output() change = new EventEmitter<Date>();
 
+  @Output() select = new EventEmitter<any>();
+
   constructor() { }
 
   ngOnInit(): void { }
@@ -61,6 +64,17 @@ export class ScheduleCalendarComponent implements OnInit, OnChanges {
   getSection(name: string): ScheduleItem {
     // get item based in the key (name)
     return this.items && this.items[name] || {};
+  }
+
+  selectSection({ type, assigned, data}: any, section: string){
+    const day = this.selectedDay;
+    this.select.emit({
+      type,
+      assigned,
+      section,
+      day,
+      data
+    })
   }
 
   // get first day of the week and emit to parent
