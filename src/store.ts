@@ -11,6 +11,7 @@ export interface State {
   workouts: Workout[],
   schedule: ScheduleItem[],
   selected: any,
+  list: any,
   [key: string]: any
 }
 
@@ -24,7 +25,8 @@ const state: State = {
   meals: [],
   workouts: [],
   schedule: [],
-  selected: {}
+  selected: {},
+  list: []
 };
 
 export class Store {

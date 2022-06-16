@@ -31,6 +31,11 @@ export class ScheduleService {
 
   selected$ = this.section$.pipe(tap((next: any) => this.store.set('selected', next)))
 
+  list$ = this.section$.pipe(
+    map((value: any) => this.store.value[value.type]),
+    tap((next: any) => this.store.set('list', next))
+  )
+
   // TODO see if works
   // schedule is notified always the date subject emit and store the date
   schedule$: Observable<ScheduleItem[]> = this.date$.pipe(
