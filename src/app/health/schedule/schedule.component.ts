@@ -20,7 +20,9 @@ import { Workout, WorkoutsService } from '../shared/services/workouts/workouts.s
       <schedule-assign
         *ngIf="open"
         [section]="selected$ | async"
-        [list]="list$ | async">
+        [list]="list$ | async"
+        (update)="assignItem($event)"
+        (cancel)="closeAssign()">
       </schedule-assign>
     </div>  
   `,
@@ -53,6 +55,8 @@ export class ScheduleComponent implements OnInit, OnDestroy {
       this.scheduleService.schedule$.subscribe(),
       this.scheduleService.selected$.subscribe(),
       this.scheduleService.list$.subscribe(),
+      // side effect observable to create or update a section
+      this.scheduleService.items$.subscribe(),
       // get meals and workouts to see a list to assign in the selected day
       this.mealsService.meals$.subscribe(),
       this.workoutsService.workouts$.subscribe()
@@ -67,6 +71,15 @@ export class ScheduleComponent implements OnInit, OnDestroy {
     console.log('change section:', event);
     this.open = true;
     this.scheduleService.selectSection(event);
+  }
+
+  assignItem(items: string[]) {
+    this.scheduleService.updateItems(items);
+    this.closeAssign();
+  }
+  
+  closeAssign() {
+    this.open = false;
   }
 
   ngOnDestroy(): void {

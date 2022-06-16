@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
 import { AngularFireDatabase } from '@angular/fire/compat/database';
-import { BehaviorSubject, map, Observable, Subject, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, map, Observable, Subject, switchMap, tap, withLatestFrom } from 'rxjs';
 import { Store } from 'src/store';
 import { Meal } from '../meals/meals.service';
 import { Workout } from '../workouts/workouts.service';
 
 export interface ScheduleItem {
-  meals: Meal[],
-  workouts: Workout[],
+  meals: Meal[] | null,
+  workouts: Workout[] | null,
   section: string,
   timestamp: number,
   key?: string
@@ -28,6 +28,34 @@ export class ScheduleService {
   //behaviour subject is initialized with a value
   private date$ = new BehaviorSubject(new Date());
   private section$ = new Subject();
+  private itemList$ = new Subject();
+
+  // latest update from a particular section
+  items$ = this.itemList$.pipe(
+    withLatestFrom(this.section$),
+    map(([ items, section ]: any) => {
+      const id = section.data.$key;
+
+      const defaults: ScheduleItem = {
+        workouts: null,
+        meals: null,
+        section: section.section,
+        timestamp: new Date(section.day).getTime()
+      };
+      // if have an id we use the correspondent section.data if not que create a defaults
+      const payload = {
+        ...(id ? section.data : defaults),
+        ...items
+      };
+
+      if (id) {
+        return this.updateSection(id, payload);
+      } else {
+        return this.createSection(payload);
+      }
+
+    })
+  )
 
   selected$ = this.section$.pipe(tap((next: any) => this.store.set('selected', next)))
 
@@ -77,6 +105,19 @@ export class ScheduleService {
 
   selectSection(event: any){
     this.section$.next(event);
+  }
+
+  private updateSection(key: string, payload: ScheduleItem){
+    return this.db.object(`schedule/${this.uid}/${key}`).update(payload);
+  }
+
+  private createSection(payload: ScheduleItem){
+    return this.db.list(`schedule/${this.uid}`).push(payload);
+  }
+
+  // itemList observable emit the new items to update firebase database
+  updateItems(items: string[]){
+    this.itemList$.next(items)
   }
 
   // TODO see if works
