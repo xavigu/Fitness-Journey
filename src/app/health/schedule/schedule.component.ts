@@ -34,6 +34,7 @@ export class ScheduleComponent implements OnInit, OnDestroy {
   date$!: Observable<Date>;
   schedule$!: Observable<ScheduleItem[]>;
   selected$!: Observable<any>;
+  //To get the list of meals or workouts that we have in the database
   list$!: Observable<Meal[] | Workout[]>;
   
   subscriptions: Subscription[] = [];
@@ -57,7 +58,7 @@ export class ScheduleComponent implements OnInit, OnDestroy {
       this.scheduleService.list$.subscribe(),
       // side effect observable to create or update a section
       this.scheduleService.items$.subscribe(),
-      // get meals and workouts to see a list to assign in the selected day
+      // to preloads meals and workouts to see the list of each one to assign in the selected day
       this.mealsService.meals$.subscribe(),
       this.workoutsService.workouts$.subscribe()
     ];
@@ -68,7 +69,6 @@ export class ScheduleComponent implements OnInit, OnDestroy {
   }
 
   changeSection(event: any){
-    console.log('change section:', event);
     this.open = true;
     this.scheduleService.selectSection(event);
   }

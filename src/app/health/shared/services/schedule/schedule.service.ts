@@ -10,7 +10,7 @@ export interface ScheduleItem {
   workouts: Workout[] | null,
   section: string,
   timestamp: number,
-  key?: string
+  $key?: string
 }
 
 export interface ScheduleList {
@@ -30,10 +30,19 @@ export class ScheduleService {
   private section$ = new Subject();
   private itemList$ = new Subject();
 
+  constructor(
+    private store: Store,
+    private db: AngularFireDatabase
+  ){}
+
   // latest update from a particular section
   items$ = this.itemList$.pipe(
     withLatestFrom(this.section$),
-    map(([ items, section ]: any) => {
+    map(([ items, section ]: any[]) => {
+      //TODO Check why section dont return the $key, show in video
+      console.log('items: ', items);
+      console.log('section: ', section);
+
       const id = section.data.$key;
 
       const defaults: ScheduleItem = {
@@ -42,12 +51,12 @@ export class ScheduleService {
         section: section.section,
         timestamp: new Date(section.day).getTime()
       };
-      // if have an id we use the correspondent section.data if not que create a defaults
+      // if we have an id we use the correspondent section.data if not we create a new one with defaults values
       const payload = {
         ...(id ? section.data : defaults),
         ...items
       };
-
+      console.log('items id: ', id);
       if (id) {
         return this.updateSection(id, payload);
       } else {
@@ -59,12 +68,12 @@ export class ScheduleService {
 
   selected$ = this.section$.pipe(tap((next: any) => this.store.set('selected', next)))
 
+  // observable of list of meals or workouts
   list$ = this.section$.pipe(
     map((value: any) => this.store.value[value.type]),
     tap((next: any) => this.store.set('list', next))
   )
 
-  // TODO see if works
   // schedule is notified always the date subject emit and store the date
   schedule$: Observable<ScheduleItem[]> = this.date$.pipe(
     tap((next: any) => this.store.set('date', next)),
@@ -94,33 +103,29 @@ export class ScheduleService {
     tap((next: any) => this.store.set('schedule', next))
   );
 
-  constructor(
-    private store: Store,
-    private db: AngularFireDatabase
-  ){}
-
   updateDate(date: Date){
     this.date$.next(date);
   }
 
   selectSection(event: any){
+    console.log('section selected:', event);
     this.section$.next(event);
-  }
-
-  private updateSection(key: string, payload: ScheduleItem){
-    return this.db.object(`schedule/${this.uid}/${key}`).update(payload);
   }
 
   private createSection(payload: ScheduleItem){
     return this.db.list(`schedule/${this.uid}`).push(payload);
   }
 
+  private updateSection(key: string, payload: ScheduleItem){
+    return this.db.object(`schedule/${this.uid}/${key}`).update(payload);
+  }
+
   // itemList observable emit the new items to update firebase database
   updateItems(items: string[]){
+    console.log('update meals/workout items:', items);
     this.itemList$.next(items)
   }
 
-  // TODO see if works
   private getSchedule(startAt: number, endAt: number){
     // get schedule orderby timestamp with and start and end value
     return this.db.list(`schedule/${this.uid}`, ref => ref.orderByChild('timestamp').startAt(startAt).endAt(endAt)).valueChanges();

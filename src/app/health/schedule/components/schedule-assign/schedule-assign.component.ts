@@ -23,18 +23,21 @@ import { Workout } from 'src/app/health/shared/services/workouts/workouts.servic
         </div>
 
         <div class="schedule-assign__list">
+
           <span 
             class="schedule-assign__empty"
             *ngIf="!list?.length">
             <img src="/assets/face.svg">
             Nothing here to assign
           </span>  
+
           <div
             *ngFor="let item of list"
             [class.active]="exists(item.name)"
             (click)="toggleItem(item.name)">
             {{ item.name }}
           </div>  
+
         </div>
 
         <div class="schedule-assign__submit">
@@ -70,15 +73,8 @@ export class ScheduleAssignComponent implements OnInit {
   @Output() cancel = new EventEmitter<any>();
 
   ngOnInit(): void { 
+    // add the items already assigned before to the selected variable
     this.selected = [...this.section.assigned];
-  }
-
-  getRoute(name: string){
-    return [`../${name}/new`];
-  }
-
-  exists(name: any){
-    return !!~this.selected.indexOf(name);
   }
 
   toggleItem(name: any){
@@ -89,6 +85,14 @@ export class ScheduleAssignComponent implements OnInit {
       // similar to push
       this.selected = [...this.selected, name];
     }
+  }
+
+  getRoute(name: string){
+    return [`../${name}/new`];
+  }
+
+  exists(name: any){
+    return !!~this.selected.indexOf(name);
   }
 
   updateAssign() {
