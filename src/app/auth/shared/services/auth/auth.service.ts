@@ -57,6 +57,7 @@ export class AuthService {
   }
 
   logoutUser(){
+    localStorage.removeItem('userId');
     return this.afAuth.signOut();
   }
 }
