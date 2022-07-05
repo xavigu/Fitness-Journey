@@ -26,7 +26,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
         <div class="error" *ngIf="emailFormatInvalid">
           Invalid email format
         </div>
-
+        
         <div class="error"  *ngIf="passwordInvalid">
           Password required
         </div>

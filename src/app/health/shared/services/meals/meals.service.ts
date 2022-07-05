@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { AngularFireDatabase, AngularFireList } from '@angular/fire/compat/database';
 import { filter, map, Observable, of } from 'rxjs';
-import { AuthService } from 'src/app/auth/shared/services/auth/auth.service';
 import { Store } from 'src/store';
 
 export interface Meal {
@@ -23,7 +22,6 @@ export class MealsService {
   constructor(
     private store: Store,
     private db: AngularFireDatabase,
-    private authService: AuthService
     ){
       // get meals from an specific user
       this.mealsRef$ = this.db.list(`meals/${this.userId}`);
@@ -39,20 +37,6 @@ export class MealsService {
         this.store.set('meals', meals)
       });
     }
-
-  // get uid(){
-  //   return this.authService.userId;
-  // }
-
-  // getUserId(){
-  //   let uid!: any;
-  //   this.authService.user.then(user => {
-  //     console.log('user:', user)
-  //     uid = user?.uid;
-  //   })
-  //   console.log('uid:', uid)
-  //   return uid;
-  // }
 
   getMeal(key: string){
     console.log('getMeal param id', key)
